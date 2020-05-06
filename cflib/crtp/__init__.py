@@ -29,6 +29,7 @@ import logging
 
 from .debugdriver import DebugDriver
 from .exceptions import WrongUriType
+from .prrtdriver import PrrtDriver
 from .radiodriver import RadioDriver
 from .serialdriver import SerialDriver
 from .udpdriver import UdpDriver
@@ -40,15 +41,22 @@ __all__ = []
 logger = logging.getLogger(__name__)
 
 
-DRIVERS = [RadioDriver, SerialDriver, UdpDriver, DebugDriver, UsbDriver]
+DRIVERS = [RadioDriver, SerialDriver, UdpDriver,
+           DebugDriver, UsbDriver, PrrtDriver]
 CLASSES = []
 
 
-def init_drivers(enable_debug_driver=False):
+def init_drivers(enable_debug_driver=False, enable_serial_driver=False):
     """Initialize all the drivers."""
     for driver in DRIVERS:
         try:
-            if driver != DebugDriver or enable_debug_driver:
+            enable = True
+            if driver == DebugDriver:
+                enable = enable_debug_driver
+            elif driver == SerialDriver:
+                enable = enable_serial_driver
+
+            if enable:
                 CLASSES.append(driver)
         except Exception:  # pylint: disable=W0703
             continue
